@@ -10,10 +10,10 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Landing View Controller-->
+        <!--Landing Form View Controller-->
         <scene sceneID="Qts-50-fan">
             <objects>
-                <viewController id="Z4P-sk-Xp2" customClass="LandingViewController" customModule="ULTURNative_Routes" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="Z4P-sk-Xp2" customClass="LandingFormViewController" customModule="ULTURNative_Routes" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="qsW-mr-g2m">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -23,7 +23,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="fDf-uf-SX9" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-417" y="90"/>
+            <point key="canvasLocation" x="-634" y="99"/>
         </scene>
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">

@@ -1,5 +1,5 @@
 //
-//  LandingViewController.swift
+//  LandingFormViewController.swift
 //  ULTURNative-Routes
 //
 //  Created by Paul Kao on 2017-11-03.
@@ -7,12 +7,27 @@
 //
 
 import UIKit
+import Eureka
 
-
-class LandingViewController: UIViewController {
+class LandingFormViewController: FormViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        form
+            +++ Section()
+            <<< TextRow(){
+                row in
+                row.title = "Starting location:"
+                row.placeholder = "Default: Current location"
+            }
+            +++ Section()
+            <<< TextRow(){
+                row in
+                row.title = "Destination location:"
+                row.placeholder = "Default: The Moon"
+            }
+                
 
         // Do any additional setup after loading the view.
     }
