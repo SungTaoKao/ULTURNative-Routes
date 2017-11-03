@@ -10,6 +10,7 @@
 		11CDD7E91F905A37007EBF2F /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 11CDD7E81F905A37007EBF2F /* CoreLocation.framework */; };
 		16206800C2D7BF95555F7816 /* Pods_ULTURNative_RoutesUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 25589E27D15ACB035C920C9E /* Pods_ULTURNative_RoutesUITests.framework */; };
 		73FF996435DB06EF65E8950B /* Pods_ULTURNative_RoutesTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7C4AAE162D3FB8D6F428C4CA /* Pods_ULTURNative_RoutesTests.framework */; };
+		C910AF941FAD1F560063FD54 /* LandingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C910AF931FAD1F560063FD54 /* LandingViewController.swift */; };
 		C93FC3FA1F8832D600E19D10 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C93FC3F91F8832D600E19D10 /* MapKit.framework */; };
 		CE7AB62D1F7EF93200BCC383 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE7AB62C1F7EF93200BCC383 /* AppDelegate.swift */; };
 		CE7AB62F1F7EF93200BCC383 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE7AB62E1F7EF93200BCC383 /* ViewController.swift */; };
@@ -49,6 +50,7 @@
 		8F4127894D99231BA9692329 /* Pods_ULTURNative_Routes.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ULTURNative_Routes.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C79198259069FD0A3C525E1 /* Pods-ULTURNative-Routes.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ULTURNative-Routes.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ULTURNative-Routes/Pods-ULTURNative-Routes.debug.xcconfig"; sourceTree = "<group>"; };
 		B2C5C282799E1C67FCC8869A /* Pods-ULTURNative-RoutesTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ULTURNative-RoutesTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ULTURNative-RoutesTests/Pods-ULTURNative-RoutesTests.debug.xcconfig"; sourceTree = "<group>"; };
+		C910AF931FAD1F560063FD54 /* LandingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandingViewController.swift; sourceTree = "<group>"; };
 		C93FC3F91F8832D600E19D10 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		CE7AB6291F7EF93200BCC383 /* ULTURNative-Routes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ULTURNative-Routes.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE7AB62C1F7EF93200BCC383 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -138,6 +140,7 @@
 				CE7AB6331F7EF93200BCC383 /* Assets.xcassets */,
 				CE7AB6351F7EF93200BCC383 /* LaunchScreen.storyboard */,
 				CE7AB6381F7EF93200BCC383 /* Info.plist */,
+				C910AF931FAD1F560063FD54 /* LandingViewController.swift */,
 			);
 			path = "ULTURNative-Routes";
 			sourceTree = "<group>";
@@ -339,13 +342,13 @@
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-ULTURNative-Routes/Pods-ULTURNative-Routes-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/Eureka/Eureka.framework",
 				"${PODS_ROOT}/Mapbox-iOS-SDK/dynamic/Mapbox.framework",
-				"${PODS_ROOT}/Mapbox-iOS-SDK/dynamic/Mapbox.framework.dSYM",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Eureka.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Mapbox.framework",
-				"${DWARF_DSYM_FOLDER_PATH}/Mapbox.framework.dSYM",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -474,6 +477,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CE7AB62F1F7EF93200BCC383 /* ViewController.swift in Sources */,
+				C910AF941FAD1F560063FD54 /* LandingViewController.swift in Sources */,
 				CE7AB62D1F7EF93200BCC383 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
