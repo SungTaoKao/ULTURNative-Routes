@@ -7,6 +7,7 @@ target 'ULTURNative-Routes' do
 
   # Pods for ULTURNative-Routes
   pod 'Mapbox-iOS-SDK', '~> 3.6'
+  pod 'Eureka', '~> 3.0.0'
 
   target 'ULTURNative-RoutesTests' do
     inherit! :search_paths
