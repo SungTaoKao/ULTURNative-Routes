@@ -18,6 +18,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MGLMapViewDel
     
     let directions = Directions.shared
     var locationManager = CLLocationManager()
+    var leftTurningPoints = [CLLocationCoordinate2D]()
     
     @IBOutlet weak var speedButton: UIButton!
     @IBOutlet weak var mapviewlayer: UIView!
@@ -48,12 +49,10 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MGLMapViewDel
         
         let waypoints = [
             Waypoint(coordinate: locValue, name: "Mapbox"),
-            Waypoint(coordinate: CLLocationCoordinate2D(latitude: 38.8977, longitude: -77.0365), name: "White House"),
+            Waypoint(coordinate: CLLocationCoordinate2D(latitude: 49.273372, longitude: -123.101828), name: "Science World"),
             ]
         let options = RouteOptions(waypoints: waypoints, profileIdentifier: .automobileAvoidingTraffic)
         options.includesSteps = true
-        
-        
         
         
         let task = directions.calculate(options) { (waypoints, routes, error) in
@@ -72,26 +71,33 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MGLMapViewDel
                 print("Distance: \(route.distance)m; ETA: \(formattedTravelTime!)")
                 
                 for step in leg.steps {
-                    
-                    print("\(step.instructions)")
-                    // Turn Direction. Left Right Straight
-                    //print("ManeuverDirection: \(step.maneuverDirection!)")
-                    // Turn, Depart, Arrive, End of Road (hit T intersection)
-                    print("ManeuverType: \(step.maneuverType!)")
-                    // Maneuver location
-                    print("ManeuverLocation: \(step.maneuverLocation.latitude)  \(step.maneuverLocation.longitude)")
-                    print("\(step.intersections![step.intersections!.count-1].location.latitude)    \(step.intersections![step.intersections!.count-1].location.longitude)")
-                    //print("\(legsteps["intersection"][legsteps["intersection"].count-1]["location"][0])   \(legsteps["intersection"][legsteps["intersection"].count-1]["location"][1])")
-                    print("— \(step.distance)m —")
-                    
-                    let point = MGLPointAnnotation()
-                    point.coordinate = step.maneuverLocation
-                    point.title = "Hello!"
-                    point.subtitle = "\(step.maneuverLocation.latitude)    \(step.maneuverLocation.longitude)"
-                    mapView.addAnnotation(point)
+                    if let left = step.maneuverDirection {
+                        if ("\(left)" == "left" || "\(left)" == "sharp left") {
+                            self.leftTurningPoints.append(step.maneuverLocation)
+                            print("\(step.instructions)")
+                            // Turn Direction. Left Right Straight
+                            //print("ManeuverDirection: \(step.maneuverDirection!)")
+                            // Turn, Depart, Arrive, End of Road (hit T intersection)
+                            print("ManeuverType: \(step.maneuverType!)")
+                            // Maneuver location
+                            print("ManeuverLocation: \(step.maneuverLocation.latitude)  \(step.maneuverLocation.longitude)")
+                            print("\(step.intersections![step.intersections!.count-1].location.latitude)    \(step.intersections![step.intersections!.count-1].location.longitude)")
+                            //print("\(legsteps["intersection"][legsteps["intersection"].count-1]["location"][0])   \(legsteps["intersection"][legsteps["intersection"].count-1]["location"][1])")
+                            print("— \(step.distance)m —")
+                            
+                            let point = MGLPointAnnotation()
+                            point.coordinate = step.maneuverLocation
+                            point.title = "Hello!"
+                            point.subtitle = "\(step.maneuverLocation.latitude)    \(step.maneuverLocation.longitude)"
+                            mapView.addAnnotation(point)
+                        }
+                    }
                 }
                 
                 if route.coordinateCount > 0 {
+                    for p in self.leftTurningPoints {
+                        print("\(p.latitude)   \(p.longitude)")
+                    }
                     // Convert the route’s coordinates into a polyline.
                     var routeCoordinates = route.coordinates!
                     let routeLine = MGLPolyline(coordinates: &routeCoordinates, count: route.coordinateCount)
@@ -102,8 +108,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MGLMapViewDel
                 }
             }
         }
-        
-        
     }
     //continue update current location
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
