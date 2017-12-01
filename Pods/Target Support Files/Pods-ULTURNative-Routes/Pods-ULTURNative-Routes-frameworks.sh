@@ -102,32 +102,16 @@ strip_invalid_archs() {
 
 
 if [[ "$CONFIGURATION" == "Debug" ]]; then
-  install_framework "${BUILT_PRODUCTS_DIR}/AWSCore/AWSCore.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/AWSPolly/AWSPolly.framework"
   install_framework "${PODS_ROOT}/Mapbox-iOS-SDK/dynamic/Mapbox.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/MapboxCoreNavigation/MapboxCoreNavigation.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/MapboxDirections.swift/MapboxDirections.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/MapboxMobileEvents/MapboxMobileEvents.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/MapboxNavigation/MapboxNavigation.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/OSRMTextInstructions/OSRMTextInstructions.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/Polyline/Polyline.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/SDWebImage/SDWebImage.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/Solar/Solar.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/Turf/Turf.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
-  install_framework "${BUILT_PRODUCTS_DIR}/AWSCore/AWSCore.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/AWSPolly/AWSPolly.framework"
   install_framework "${PODS_ROOT}/Mapbox-iOS-SDK/dynamic/Mapbox.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/MapboxCoreNavigation/MapboxCoreNavigation.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/MapboxDirections.swift/MapboxDirections.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/MapboxMobileEvents/MapboxMobileEvents.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/MapboxNavigation/MapboxNavigation.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/OSRMTextInstructions/OSRMTextInstructions.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/Polyline/Polyline.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/SDWebImage/SDWebImage.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/Solar/Solar.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/Turf/Turf.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework"
 fi
 if [ "${COCOAPODS_PARALLEL_CODE_SIGN}" == "true" ]; then
   wait

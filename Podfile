@@ -7,7 +7,8 @@ target 'ULTURNative-Routes' do
 
   # Pods for ULTURNative-Routes
   pod 'Mapbox-iOS-SDK', '~> 3.6'
-  pod 'MapboxNavigation', '~> 0.10'
+  pod 'MapboxDirections.swift', '~> 0.12'
+  pod 'SwiftyJSON'
 
   target 'ULTURNative-RoutesTests' do
     inherit! :search_paths
