@@ -18,11 +18,18 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MGLMapViewDel
     
     let directions = Directions.shared
     var locationManager = CLLocationManager()
+
+    var mapView: MGLMapView!
+    var startRoute: Bool!
     var leftTurningPoints = [CLLocationCoordinate2D]()
+
     
     @IBOutlet weak var speedButton: UIButton!
     @IBOutlet weak var mapviewlayer: UIView!
     
+    @IBAction func clickSpeed(_ sender: Any) {
+        zoomIntopoint(mapView)
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         locationManager = CLLocationManager()
@@ -32,11 +39,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MGLMapViewDel
         locationManager.startUpdatingLocation()
 
 
-        let mapView = MGLMapView(frame: view.bounds, styleURL: MGLStyle.darkStyleURL())
+        mapView = MGLMapView(frame: view.bounds, styleURL: MGLStyle.darkStyleURL())
         mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         let manager = CLLocationManager()
         let locValue:CLLocationCoordinate2D = manager.location!.coordinate
-        mapView.setCenter(CLLocationCoordinate2D(latitude: locValue.latitude, longitude: locValue.longitude), zoomLevel: 15, animated: false)
+        mapView.setCenter(CLLocationCoordinate2D(latitude: locValue.latitude, longitude: locValue.longitude), zoomLevel: 15, animated: true)
         mapviewlayer.addSubview(mapView)
         mapviewlayer.addSubview(speedButton)
         
@@ -46,7 +53,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MGLMapViewDel
         mapView.delegate = self
         // Allow the map view to display the user's location
         mapView.showsUserLocation = true
-        
         let waypoints = [
             Waypoint(coordinate: locValue, name: "Mapbox"),
             Waypoint(coordinate: CLLocationCoordinate2D(latitude: 49.273372, longitude: -123.101828), name: "Science World"),
@@ -71,6 +77,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MGLMapViewDel
                 print("Distance: \(route.distance)m; ETA: \(formattedTravelTime!)")
                 
                 for step in leg.steps {
+
                     if let left = step.maneuverDirection {
                         if ("\(left)" == "left" || "\(left)" == "sharp left") {
                             self.leftTurningPoints.append(step.maneuverLocation)
@@ -89,7 +96,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MGLMapViewDel
                             point.coordinate = step.maneuverLocation
                             point.title = "Hello!"
                             point.subtitle = "\(step.maneuverLocation.latitude)    \(step.maneuverLocation.longitude)"
-                            mapView.addAnnotation(point)
+                            self.mapView.addAnnotation(point)
                         }
                     }
                 }
@@ -103,8 +110,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MGLMapViewDel
                     let routeLine = MGLPolyline(coordinates: &routeCoordinates, count: route.coordinateCount)
                     
                     // Add the polyline to the map and fit the viewport to the polyline.
-                    mapView.addAnnotation(routeLine)
-                    mapView.setVisibleCoordinates(&routeCoordinates, count: route.coordinateCount, edgePadding: .zero, animated: true)
+                    self.mapView.addAnnotation(routeLine)
+                    self.mapView.setVisibleCoordinates(&routeCoordinates, count: route.coordinateCount, edgePadding: .zero, animated: true)
                 }
             }
         }
@@ -115,13 +122,32 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MGLMapViewDel
         print("Current Speed:\(manager.location!.speed)")
         let speed = manager.location!.speed
         let result = speed * 15/8
-        if(result<0){
+        if(result < 0){
             let showing:String = String(0)
             speedButton.setTitle("\(showing) km/h", for: .normal)
             
         }else{
             let showing:String = String(format:"%.1f", result)
             speedButton.setTitle("\(showing) km/h", for: .normal)
+        }
+        //when you start to go the camera will start trace loation
+        //after that please set to false
+        startRoute=false
+        if (startRoute){
+        let camera = MGLMapCamera(lookingAtCenter: manager.location!.coordinate, fromDistance: 1000, pitch: 0, heading: 0)
+            mapView.setCamera(camera, animated: true)
+            
+        }
+        //zoomIntopoint(mapView)
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        if status == .authorizedAlways {
+            if CLLocationManager.isMonitoringAvailable(for: CLBeaconRegion.self) {
+                if CLLocationManager.isRangingAvailable() {
+                    // do stuff
+                }
+            }
         }
     }
     override func didReceiveMemoryWarning() {
@@ -143,7 +169,25 @@ extension ViewController{
     
     // Zoom to the annotation when it is selected
     func mapView(_ mapView: MGLMapView, didSelect annotation: MGLAnnotation) {
-        let camera = MGLMapCamera(lookingAtCenter: annotation.coordinate, fromDistance: 4000, pitch: 0, heading: 0)
+        let camera = MGLMapCamera(lookingAtCenter: annotation.coordinate, fromDistance: 1000, pitch: 0, heading: 0)
+        mapView.setCamera(camera, animated: true)
+    }
+    func mapViewDidFinishLoadingMap(_ mapView: MGLMapView) {
+        // Wait for the map to load before initiating the first camera movement.
+        
+        // Create a camera that rotates around the same center point, rotating 180°.
+        // `fromDistance:` is meters above mean sea level that an eye would have to be in order to see what the map view is showing.
+                let manager = CLLocationManager()
+        
+        let camera = MGLMapCamera(lookingAtCenter: manager.location!.coordinate, fromDistance: 1000, pitch: 0, heading: 0)
+        
+        // Animate the camera movement over 5 seconds.
+        mapView.setCamera(camera, withDuration: 5, animationTimingFunction: CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut))
+    }
+    //this one called when user click the speed button on the screen
+    func zoomIntopoint(_ mapView: MGLMapView){
+        let manager = CLLocationManager()
+        let camera = MGLMapCamera(lookingAtCenter: manager.location!.coordinate, fromDistance: 1000, pitch: 0, heading: 0)
         mapView.setCamera(camera, animated: true)
     }
 }
