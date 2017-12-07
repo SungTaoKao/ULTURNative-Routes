@@ -11,12 +11,14 @@ import MapKit
 import CoreLocation
 import Mapbox
 import MapboxDirections
+import MapboxGeocoder
 
 
 class ViewController: UIViewController, CLLocationManagerDelegate, MGLMapViewDelegate
 {
     
     let directions = Directions.shared
+    let geocoder = Geocoder.shared
     var locationManager = CLLocationManager()
 
     var mapView: MGLMapView!
@@ -27,11 +29,19 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MGLMapViewDel
     @IBOutlet weak var speedButton: UIButton!
     @IBOutlet weak var mapviewlayer: UIView!
     
+    @IBAction func searchAlert(_ sender: Any) {
+        searchingAlert()
+    }
     @IBAction func clickSpeed(_ sender: Any) {
         zoomIntopoint(mapView)
+        //let searchingresults:String = "Bcit"
+        //searchingAndConvert(searchingresults)
+        
     }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         locationManager = CLLocationManager()
         locationManager.delegate = self;
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
@@ -48,18 +58,17 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MGLMapViewDel
         mapviewlayer.addSubview(speedButton)
         
         print("locations = \(locValue.latitude) \(locValue.longitude)")
-        
+
         // Set the map view's delegate
         mapView.delegate = self
         // Allow the map view to display the user's location
         mapView.showsUserLocation = true
         let waypoints = [
             Waypoint(coordinate: locValue, name: "Mapbox"),
-            Waypoint(coordinate: CLLocationCoordinate2D(latitude: 49.273372, longitude: -123.101828), name: "Science World"),
+            Waypoint(coordinate: CLLocationCoordinate2D(latitude: 49.2353827, longitude: -123.0104543), name: "Science World"),
             ]
-        let options = RouteOptions(waypoints: waypoints, profileIdentifier: .automobileAvoidingTraffic)
-        options.includesSteps = true
-        
+            let options = RouteOptions(waypoints: waypoints, profileIdentifier: .automobileAvoidingTraffic)
+            options.includesSteps = true
         
         let task = directions.calculate(options) { (waypoints, routes, error) in
             guard error == nil else {
@@ -136,11 +145,10 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MGLMapViewDel
         if (startRoute){
         let camera = MGLMapCamera(lookingAtCenter: manager.location!.coordinate, fromDistance: 1000, pitch: 0, heading: 0)
             mapView.setCamera(camera, animated: true)
-            
         }
         //zoomIntopoint(mapView)
     }
-    
+    //authorized for using location
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         if status == .authorizedAlways {
             if CLLocationManager.isMonitoringAvailable(for: CLBeaconRegion.self) {
@@ -169,6 +177,7 @@ extension ViewController{
     
     // Zoom to the annotation when it is selected
     func mapView(_ mapView: MGLMapView, didSelect annotation: MGLAnnotation) {
+        afterSearching()
         let camera = MGLMapCamera(lookingAtCenter: annotation.coordinate, fromDistance: 1000, pitch: 0, heading: 0)
         mapView.setCamera(camera, animated: true)
     }
@@ -177,10 +186,10 @@ extension ViewController{
         
         // Create a camera that rotates around the same center point, rotating 180°.
         // `fromDistance:` is meters above mean sea level that an eye would have to be in order to see what the map view is showing.
-                let manager = CLLocationManager()
+        let manager = CLLocationManager()
         
         let camera = MGLMapCamera(lookingAtCenter: manager.location!.coordinate, fromDistance: 1000, pitch: 0, heading: 0)
-        
+
         // Animate the camera movement over 5 seconds.
         mapView.setCamera(camera, withDuration: 5, animationTimingFunction: CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut))
     }
@@ -189,6 +198,87 @@ extension ViewController{
         let manager = CLLocationManager()
         let camera = MGLMapCamera(lookingAtCenter: manager.location!.coordinate, fromDistance: 1000, pitch: 0, heading: 0)
         mapView.setCamera(camera, animated: true)
+    }
+    
+    //this one called when the searching finished
+    func zoomIntoResult(_ mapView: MGLMapView, _ location:GeocodedPlacemark){
+        let camera = MGLMapCamera(lookingAtCenter: location.location.coordinate, fromDistance: 1000, pitch: 0, heading: 0)
+        mapView.setCamera(camera, animated: true)
+        let point = MGLPointAnnotation()
+        
+        point.coordinate = location.location.coordinate
+        point.title = location.name
+        point.subtitle = location.qualifiedName
+        
+        self.mapView.addAnnotation(point)
+    }
+    
+
+}
+//searching function
+extension ViewController{
+    func searchingAndConvert(_ searchDestination: String){
+        let opt = ForwardGeocodeOptions(query: searchDestination)
+        // To refine the search, you can set various properties on the options object.
+        opt.allowedISOCountryCodes = ["CA"]
+        opt.allowedScopes = [.address,.postalCode, .pointOfInterest]
+        
+        _ = geocoder.geocode(opt) { (placemarks, attribution, error) in
+            guard let placemark = placemarks?.first else {
+                return
+            }
+            print(placemark.name)
+            // 200 Queen St
+            print(placemark.qualifiedName)
+            // 200 Queen St, Saint John, New Brunswick E2L 2X1, Canada
+            
+            //search result
+            let thepoints = placemark.location.coordinate
+            print("\(thepoints.latitude), \(thepoints.longitude)")
+            //after finishe search go the the result place
+            self.zoomIntoResult(self.mapView, placemark)
+        }
+    }
+    
+    func searchingAlert(){
+        let alertController = UIAlertController(title: "Where do you want to go?", message: "Please input your destination:", preferredStyle: .alert)
+        let confirmAction = UIAlertAction(title: "Search", style: .default) { (_) in
+            if let field = alertController.textFields?[0] {
+                // store your data
+                self.searchingAndConvert(field.text!)
+            } else {
+                // user did not fill field
+            }
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { (_) in }
+        
+        alertController.addTextField { (textField) in
+            textField.placeholder = "address/postol code"
+        }
+        
+        alertController.addAction(confirmAction)
+        alertController.addAction(cancelAction)
+        
+        self.present(alertController, animated: true, completion: nil)
+    }
+    func afterSearching(){
+        let alertController = UIAlertController(title: "Is this the correct address?", message: "If not, try to use postal code", preferredStyle: .actionSheet)
+        let confirmAction = UIAlertAction(title: "Go!", style: .default) { (_) in
+//            if let field = alertController.textFields?[0] {
+//                // store your data
+//                //self.searchingAndConvert(field.text!)
+//            } else {
+//                // user did not fill field
+//            }
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { (_) in }
+        
+        alertController.addAction(confirmAction)
+        alertController.addAction(cancelAction)
+        
+        self.present(alertController, animated: true, completion: nil)
     }
 }
 

@@ -9,7 +9,8 @@ target 'ULTURNative-Routes' do
   pod 'Mapbox-iOS-SDK', '~> 3.6'
   pod 'MapboxDirections.swift', '~> 0.12'
   pod 'SwiftyJSON'
-
+  pod 'MapboxGeocoder.swift', '~> 0.7'
+  pod 'PCLBlurEffectAlert'
   target 'ULTURNative-RoutesTests' do
     inherit! :search_paths
     # Pods for testing
