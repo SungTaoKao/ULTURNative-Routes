@@ -32,7 +32,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MGLMapViewDel
     @IBOutlet weak var mapviewlayer: UIView!
     
     @IBAction func searchAlert(_ sender: Any) {
-        searchingAlert()
+        if(!startRoute){
+            searchingAlert()
+        }else{
+            stopAlert()
+        }
     }
     @IBAction func clickSpeed(_ sender: Any) {
         zoomIntopoint(mapView)
@@ -216,6 +220,25 @@ extension ViewController{
                 self.mapView.removeAnnotations(annotations)
                 self.destinationGlobal = nil
             }
+        }
+        
+        alertController.addAction(confirmAction)
+        alertController.addAction(cancelAction)
+        
+        self.present(alertController, animated: true, completion: nil)
+    }
+    func stopAlert(){
+        let alertController = UIAlertController(title: "Stop Current Trip ", message: "Do you want to stop?", preferredStyle: .alert)
+        let confirmAction = UIAlertAction(title: "Stop", style: .destructive) { (_) in
+            self.startRoute = false
+            self.searchFlag = false
+            if let annotations = self.mapView.annotations {
+                self.mapView.removeAnnotations(annotations)
+                self.destinationGlobal = nil
+            }
+        }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { (_) in
+            
         }
         
         alertController.addAction(confirmAction)
