@@ -22,6 +22,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MGLMapViewDel
     var locationManager = CLLocationManager()
 
     var mapView: MGLMapView!
+    var destinationGlobal: CLLocationCoordinate2D!
     var startRoute: Bool!
     var leftTurningPoints = [CLLocationCoordinate2D]()
 
@@ -34,96 +35,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MGLMapViewDel
     }
     @IBAction func clickSpeed(_ sender: Any) {
         zoomIntopoint(mapView)
-        //let searchingresults:String = "Bcit"
-        //searchingAndConvert(searchingresults)
-        
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        locationManager = CLLocationManager()
-        locationManager.delegate = self;
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        locationManager.requestAlwaysAuthorization()
-        locationManager.startUpdatingLocation()
-
-
-        mapView = MGLMapView(frame: view.bounds, styleURL: MGLStyle.darkStyleURL())
-        mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        let manager = CLLocationManager()
-        let locValue:CLLocationCoordinate2D = manager.location!.coordinate
-        mapView.setCenter(CLLocationCoordinate2D(latitude: locValue.latitude, longitude: locValue.longitude), zoomLevel: 15, animated: true)
-        mapviewlayer.addSubview(mapView)
-        mapviewlayer.addSubview(speedButton)
-        
-        print("locations = \(locValue.latitude) \(locValue.longitude)")
-
-        // Set the map view's delegate
-        mapView.delegate = self
-        // Allow the map view to display the user's location
-        mapView.showsUserLocation = true
-        let waypoints = [
-            Waypoint(coordinate: locValue, name: "Mapbox"),
-            Waypoint(coordinate: CLLocationCoordinate2D(latitude: 49.2353827, longitude: -123.0104543), name: "Science World"),
-            ]
-            let options = RouteOptions(waypoints: waypoints, profileIdentifier: .automobileAvoidingTraffic)
-            options.includesSteps = true
-        
-        let task = directions.calculate(options) { (waypoints, routes, error) in
-            guard error == nil else {
-                print("Error calculating directions: \(error!)")
-                return
-            }
-            
-            if let route = routes?.first, let leg = route.legs.first {
-                print("Route via \(leg):")
-                
-                let travelTimeFormatter = DateComponentsFormatter()
-                travelTimeFormatter.unitsStyle = .short
-                let formattedTravelTime = travelTimeFormatter.string(from: route.expectedTravelTime)
-                
-                print("Distance: \(route.distance)m; ETA: \(formattedTravelTime!)")
-                
-                for step in leg.steps {
-
-                    if let left = step.maneuverDirection {
-                        if ("\(left)" == "left" || "\(left)" == "sharp left") {
-                            self.leftTurningPoints.append(step.maneuverLocation)
-                            print("\(step.instructions)")
-                            // Turn Direction. Left Right Straight
-                            //print("ManeuverDirection: \(step.maneuverDirection!)")
-                            // Turn, Depart, Arrive, End of Road (hit T intersection)
-                            print("ManeuverType: \(step.maneuverType!)")
-                            // Maneuver location
-                            print("ManeuverLocation: \(step.maneuverLocation.latitude)  \(step.maneuverLocation.longitude)")
-                            print("\(step.intersections![step.intersections!.count-1].location.latitude)    \(step.intersections![step.intersections!.count-1].location.longitude)")
-                            //print("\(legsteps["intersection"][legsteps["intersection"].count-1]["location"][0])   \(legsteps["intersection"][legsteps["intersection"].count-1]["location"][1])")
-                            print("— \(step.distance)m —")
-                            
-                            let point = MGLPointAnnotation()
-                            point.coordinate = step.maneuverLocation
-                            point.title = "Hello!"
-                            point.subtitle = "\(step.maneuverLocation.latitude)    \(step.maneuverLocation.longitude)"
-                            self.mapView.addAnnotation(point)
-                        }
-                    }
-                }
-                
-                if route.coordinateCount > 0 {
-                    for p in self.leftTurningPoints {
-                        print("\(p.latitude)   \(p.longitude)")
-                    }
-                    // Convert the route’s coordinates into a polyline.
-                    var routeCoordinates = route.coordinates!
-                    let routeLine = MGLPolyline(coordinates: &routeCoordinates, count: route.coordinateCount)
-                    
-                    // Add the polyline to the map and fit the viewport to the polyline.
-                    self.mapView.addAnnotation(routeLine)
-                    self.mapView.setVisibleCoordinates(&routeCoordinates, count: route.coordinateCount, edgePadding: .zero, animated: true)
-                }
-            }
-        }
+        initialMap()
     }
     //continue update current location
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -182,21 +98,11 @@ extension ViewController{
         mapView.setCamera(camera, animated: true)
     }
     func mapViewDidFinishLoadingMap(_ mapView: MGLMapView) {
-        // Wait for the map to load before initiating the first camera movement.
-        
-        // Create a camera that rotates around the same center point, rotating 180°.
-        // `fromDistance:` is meters above mean sea level that an eye would have to be in order to see what the map view is showing.
-        let manager = CLLocationManager()
-        
-        let camera = MGLMapCamera(lookingAtCenter: manager.location!.coordinate, fromDistance: 1000, pitch: 0, heading: 0)
-
-        // Animate the camera movement over 5 seconds.
-        mapView.setCamera(camera, withDuration: 5, animationTimingFunction: CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut))
+        locationManager.requestAlwaysAuthorization()
     }
     //this one called when user click the speed button on the screen
     func zoomIntopoint(_ mapView: MGLMapView){
-        let manager = CLLocationManager()
-        let camera = MGLMapCamera(lookingAtCenter: manager.location!.coordinate, fromDistance: 1000, pitch: 0, heading: 0)
+        let camera = MGLMapCamera(lookingAtCenter: locationManager.location!.coordinate, fromDistance: 1000, pitch: 0, heading: 0)
         mapView.setCamera(camera, animated: true)
     }
     
@@ -212,8 +118,27 @@ extension ViewController{
         
         self.mapView.addAnnotation(point)
     }
-    
-
+    func initialMap(){
+        mapView = MGLMapView(frame: view.bounds, styleURL: MGLStyle.darkStyleURL())
+        mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        mapviewlayer.addSubview(mapView)
+        mapviewlayer.addSubview(speedButton)
+        // Set the map view's delegate
+        mapView.delegate = self
+        // Allow the map view to display the user's location
+        mapView.showsUserLocation = true
+        
+        self.locationManager.requestAlwaysAuthorization()
+        
+        // For use in foreground
+        self.locationManager.requestWhenInUseAuthorization()
+        
+        if CLLocationManager.locationServicesEnabled() {
+            locationManager.delegate = self
+            locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+            locationManager.startUpdatingLocation()
+        }
+    }
 }
 //searching function
 extension ViewController{
@@ -234,6 +159,8 @@ extension ViewController{
             
             //search result
             let thepoints = placemark.location.coordinate
+            
+            self.destinationGlobal = thepoints
             print("\(thepoints.latitude), \(thepoints.longitude)")
             //after finishe search go the the result place
             self.zoomIntoResult(self.mapView, placemark)
@@ -251,10 +178,15 @@ extension ViewController{
             }
         }
         
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { (_) in }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { (_) in
+            if let annotations = self.mapView.annotations {
+                self.mapView.removeAnnotations(annotations)
+            }
+            self.destinationGlobal = nil
+        }
         
         alertController.addTextField { (textField) in
-            textField.placeholder = "address/postol code"
+            textField.placeholder = "Address/Postol code"
         }
         
         alertController.addAction(confirmAction)
@@ -264,7 +196,9 @@ extension ViewController{
     }
     func afterSearching(){
         let alertController = UIAlertController(title: "Is this the correct address?", message: "If not, try to use postal code", preferredStyle: .actionSheet)
-        let confirmAction = UIAlertAction(title: "Go!", style: .default) { (_) in
+        let confirmAction = UIAlertAction(title: "Go!", style: .destructive) { (_) in
+            
+            self.drawRoute()
 //            if let field = alertController.textFields?[0] {
 //                // store your data
 //                //self.searchingAndConvert(field.text!)
@@ -273,12 +207,84 @@ extension ViewController{
 //            }
         }
         
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { (_) in }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { (_) in
+            if let annotations = self.mapView.annotations {
+                self.mapView.removeAnnotations(annotations)
+                self.destinationGlobal = nil
+            }
+        }
         
         alertController.addAction(confirmAction)
         alertController.addAction(cancelAction)
         
         self.present(alertController, animated: true, completion: nil)
     }
+    //drawing
+    func drawRoute(){
+        let locValue:CLLocationCoordinate2D = locationManager.location!.coordinate
+        guard destinationGlobal != nil else {
+            
+            return
+        }
+        let waypoints = [
+            Waypoint(coordinate: locValue, name: "Mapbox"),
+            Waypoint(coordinate: destinationGlobal, name: "Science World"),
+            ]
+        let options = RouteOptions(waypoints: waypoints, profileIdentifier: .automobileAvoidingTraffic)
+        options.includesSteps = true
+        
+        let task = directions.calculate(options) { (waypoints, routes, error) in
+            guard error == nil else {
+                print("Error calculating directions: \(error!)")
+                return
+            }
+            
+            if let route = routes?.first, let leg = route.legs.first {
+                print("Route via \(leg):")
+                
+                let travelTimeFormatter = DateComponentsFormatter()
+                travelTimeFormatter.unitsStyle = .short
+                let formattedTravelTime = travelTimeFormatter.string(from: route.expectedTravelTime)
+                
+                print("Distance: \(route.distance)m; ETA: \(formattedTravelTime!)")
+                
+                for step in leg.steps {
+                    if let left = step.maneuverDirection {
+                        if ("\(left)" == "left" || "\(left)" == "sharp left") {
+                            self.leftTurningPoints.append(step.maneuverLocation)
+                            print("\(step.instructions)")
+                            // Turn Direction. Left Right Straight
+                            //print("ManeuverDirection: \(step.maneuverDirection!)")
+                            // Turn, Depart, Arrive, End of Road (hit T intersection)
+                            print("ManeuverType: \(step.maneuverType!)")
+                            // Maneuver location
+                            print("ManeuverLocation: \(step.maneuverLocation.latitude)  \(step.maneuverLocation.longitude)")
+                            print("\(step.intersections![step.intersections!.count-1].location.latitude)    \(step.intersections![step.intersections!.count-1].location.longitude)")
+                            //print("\(legsteps["intersection"][legsteps["intersection"].count-1]["location"][0])   \(legsteps["intersection"][legsteps["intersection"].count-1]["location"][1])")
+                            print("— \(step.distance)m —")
+                            
+                            let point = MGLPointAnnotation()
+                            point.coordinate = step.maneuverLocation
+                            point.title = "Hello!"
+                            point.subtitle = "\(step.maneuverLocation.latitude)    \(step.maneuverLocation.longitude)"
+                            self.mapView.addAnnotation(point)
+                        }
+                    }
+                }
+                
+                if route.coordinateCount > 0 {
+                    for p in self.leftTurningPoints {
+                        print("\(p.latitude)   \(p.longitude)")
+                    }
+                    // Convert the route’s coordinates into a polyline.
+                    var routeCoordinates = route.coordinates!
+                    let routeLine = MGLPolyline(coordinates: &routeCoordinates, count: route.coordinateCount)
+                    
+                    // Add the polyline to the map and fit the viewport to the polyline.
+                    self.mapView.addAnnotation(routeLine)
+                    self.mapView.setVisibleCoordinates(&routeCoordinates, count: route.coordinateCount, edgePadding: .zero, animated: true)
+                }
+            }
+        }
+    }
 }
-
