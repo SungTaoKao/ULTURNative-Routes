@@ -25,8 +25,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MGLMapViewDel
     var destinationGlobal: CLLocationCoordinate2D!
     var startRoute: Bool = false
     var searchFlag: Bool = false
+    var doneProcess: Bool = false
     var leftTurningPoints = [CLLocationCoordinate2D]()
-
+    var allPoints = [CLLocationCoordinate2D]()
     
     @IBOutlet weak var speedButton: UIButton!
     @IBOutlet weak var mapviewlayer: UIView!
@@ -65,6 +66,12 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MGLMapViewDel
 
         if (startRoute){
             zoomIntopoint(mapView)
+        }
+        //if
+        if(doneProcess){
+            print("here")
+            print(leftTurningPoints)
+            
         }
     }
     //authorized for using location
@@ -207,12 +214,6 @@ extension ViewController{
             self.startRoute = true
             self.searchFlag = false
             self.drawRoute()
-//            if let field = alertController.textFields?[0] {
-//                // store your data
-//                //self.searchingAndConvert(field.text!)
-//            } else {
-//                // user did not fill field
-//            }
         }
         
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { (_) in
@@ -232,6 +233,7 @@ extension ViewController{
         let confirmAction = UIAlertAction(title: "Stop", style: .destructive) { (_) in
             self.startRoute = false
             self.searchFlag = false
+            self.doneProcess = false
             if let annotations = self.mapView.annotations {
                 self.mapView.removeAnnotations(annotations)
                 self.destinationGlobal = nil
@@ -312,6 +314,9 @@ extension ViewController{
                     self.mapView.setVisibleCoordinates(&routeCoordinates, count: route.coordinateCount, edgePadding: .zero, animated: true)
                 }
             }
+            print("I'm done")
+            self.doneProcess=true
+            self.allPoints = self.leftTurningPoints
         }
     }
 }
