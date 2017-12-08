@@ -24,6 +24,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MGLMapViewDel
     var mapView: MGLMapView!
     var destinationGlobal: CLLocationCoordinate2D!
     var startRoute: Bool = false
+    var searchFlag: Bool = false
     var leftTurningPoints = [CLLocationCoordinate2D]()
 
     
@@ -44,8 +45,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MGLMapViewDel
     //continue update current location
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         //let locValue:CLLocationCoordinate2D = manager.location!.coordinate
-        print("Current Speed:\(manager.location!.speed)")
-        let speed = manager.location!.speed
+        print("Current Speed:\(locationManager.location!.speed)")
+        let speed = locationManager.location!.speed
         let result = speed * 15/8
         if(result < 0){
             let showing:String = String(0)
@@ -91,7 +92,9 @@ extension ViewController{
     
     // Zoom to the annotation when it is selected
     func mapView(_ mapView: MGLMapView, didSelect annotation: MGLAnnotation) {
-        afterSearching()
+        if(searchFlag){
+            afterSearching()
+        }
         let camera = MGLMapCamera(lookingAtCenter: annotation.coordinate, fromDistance: 1000, pitch: 0, heading: 0)
         mapView.setCamera(camera, animated: true)
     }
@@ -164,6 +167,7 @@ extension ViewController{
             //after finishe search go the the result place
             self.zoomIntoResult(self.mapView, placemark)
         }
+            self.searchFlag = true
     }
     
     func searchingAlert(){
@@ -197,6 +201,7 @@ extension ViewController{
         let alertController = UIAlertController(title: "Is this the correct address?", message: "If not, try to use postal code", preferredStyle: .actionSheet)
         let confirmAction = UIAlertAction(title: "Go!", style: .destructive) { (_) in
             self.startRoute = true
+            self.searchFlag = false
             self.drawRoute()
 //            if let field = alertController.textFields?[0] {
 //                // store your data
