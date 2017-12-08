@@ -23,7 +23,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MGLMapViewDel
 
     var mapView: MGLMapView!
     var destinationGlobal: CLLocationCoordinate2D!
-    var startRoute: Bool!
+    var startRoute: Bool = false
     var leftTurningPoints = [CLLocationCoordinate2D]()
 
     
@@ -57,12 +57,10 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MGLMapViewDel
         }
         //when you start to go the camera will start trace loation
         //after that please set to false
-        startRoute=false
+
         if (startRoute){
-        let camera = MGLMapCamera(lookingAtCenter: manager.location!.coordinate, fromDistance: 1000, pitch: 0, heading: 0)
-            mapView.setCamera(camera, animated: true)
+            zoomIntopoint(mapView)
         }
-        //zoomIntopoint(mapView)
     }
     //authorized for using location
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
@@ -121,6 +119,7 @@ extension ViewController{
     func initialMap(){
         mapView = MGLMapView(frame: view.bounds, styleURL: MGLStyle.darkStyleURL())
         mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        //mapView.setCenter(CLLocationCoordinate2D, animated: <#T##Bool#>)
         mapviewlayer.addSubview(mapView)
         mapviewlayer.addSubview(speedButton)
         // Set the map view's delegate
@@ -197,7 +196,7 @@ extension ViewController{
     func afterSearching(){
         let alertController = UIAlertController(title: "Is this the correct address?", message: "If not, try to use postal code", preferredStyle: .actionSheet)
         let confirmAction = UIAlertAction(title: "Go!", style: .destructive) { (_) in
-            
+            self.startRoute = true
             self.drawRoute()
 //            if let field = alertController.textFields?[0] {
 //                // store your data
@@ -265,7 +264,7 @@ extension ViewController{
                             
                             let point = MGLPointAnnotation()
                             point.coordinate = step.maneuverLocation
-                            point.title = "Hello!"
+                            point.title = "LeftTurn!"
                             point.subtitle = "\(step.maneuverLocation.latitude)    \(step.maneuverLocation.longitude)"
                             self.mapView.addAnnotation(point)
                         }
